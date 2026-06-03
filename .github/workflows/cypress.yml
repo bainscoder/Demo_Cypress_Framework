@@ -11,13 +11,16 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   cypress-run:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -42,11 +45,10 @@ jobs:
         if: always()
         run: npm run allure:generate
 
-      - name: Upload Allure Report
+      - name: Upload GitHub Pages Artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: allure-report
           path: allure-report
 
       - name: Upload Screenshots
@@ -63,5 +65,16 @@ jobs:
           name: cypress-videos
           path: cypress/videos
 
+  deploy:
+    needs: cypress-run
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    permissions:
+      pages: write
+      id-token: write
 
-
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
