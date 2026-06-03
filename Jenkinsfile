@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/Users/vinaykumar/.nvm/versions/node/v22.19.0/bin:${env.PATH}"
+    }
+
     stages {
 
         stage('Checkout') {
