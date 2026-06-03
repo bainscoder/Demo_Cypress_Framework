@@ -1,10 +1,13 @@
 pipeline {
+
     agent any
 
     environment {
-        BASE_URL = 'https://demowebshop.tricentis.com'
-        EMAIL = 'your-email@example.com'
-        PASSWORD = 'your-password'
+        PATH = "/Users/vinaykumar/.nvm/versions/node/v22.19.0/bin:${env.PATH}"
+
+        BASE_URL = "https://demowebshop.tricentis.com"
+        EMAIL = "test+20@gmail.com"
+        PASSWORD = "Test@123"
     }
 
     stages {
@@ -19,59 +22,48 @@ pipeline {
         stage('Node Version') {
             steps {
                 sh '''
-                export PATH=$HOME/.nvm/versions/node/v22.19.0/bin:$PATH
-                node -v
-                npm -v
-                '''
-            }
-        }
-
-        stage('Create Environment File') {
-            steps {
-                sh '''
-                cat > .env << EOF
-                BASE_URL=$BASE_URL
-                EMAIL=$EMAIL
-                PASSWORD=$PASSWORD
-                EOF
-
-                echo "===== ENV FILE ====="
-                cat .env
+                    node -v
+                    npm -v
                 '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                export PATH=$HOME/.nvm/versions/node/v22.19.0/bin:$PATH
-                npm install
-                '''
+                sh 'npm ci'
             }
         }
 
         stage('Run Cypress Tests') {
             steps {
-                sh '''
-                export PATH=$HOME/.nvm/versions/node/v22.19.0/bin:$PATH
-                npm run cy:chrome
-                '''
+                sh 'npm run cy:chrome'
+            }
+        }
+
+        stage('Generate Allure Report') {
+            steps {
+                sh 'npm run allure:generate'
             }
         }
     }
 
     post {
+
         always {
+
+            archiveArtifacts artifacts: 'allure-report/**/*', allowEmptyArchive: true
+
             archiveArtifacts artifacts: 'cypress/screenshots/**/*', allowEmptyArchive: true
+
             archiveArtifacts artifacts: 'cypress/videos/**/*', allowEmptyArchive: true
         }
 
         success {
-            echo 'Pipeline Passed'
+            echo 'Cypress Pipeline Passed'
         }
 
         failure {
-            echo 'Pipeline Failed'
+            echo 'Cypress Pipeline Failed'
         }
     }
 }
