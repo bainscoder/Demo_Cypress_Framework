@@ -51,7 +51,6 @@ pipeline {
 
         always {
 
-            archiveArtifacts artifacts: 'allure-report/**/*', allowEmptyArchive: true
 
             archiveArtifacts artifacts: 'cypress/screenshots/**/*', allowEmptyArchive: true
 
